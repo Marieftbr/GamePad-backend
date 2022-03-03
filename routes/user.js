@@ -40,15 +40,17 @@ router.post("/user/create", async (req, res) => {
         name: req.fields.name,
         email: req.fields.email,
         password: hash,
-        picture: pictureToUpload,
         token: token,
+        salt: salt,
       });
+
       await newUser.save();
+
       newUser.picture = await cloudinary.uploader.upload(pictureToUpload, {
         folder: `Gamepad/Users/${newUser._id}/`,
       });
 
-      newUser.save();
+      await newUser.save();
     }
     res.json({ message: "User created" });
   } catch (error) {
@@ -67,11 +69,10 @@ router.post("/user/login", async (req, res) => {
         providedPassword + userFromBdd.salt
       ).toString(encBase64);
 
-      if (hashedUserPassword === userFromBdd.hash) {
+      if (hashedUserPassword === userFromBdd.password) {
         res.json({
           id: userFromBdd._id,
           token: userFromBdd.token,
-          account: userFromBdd.account,
         });
       } else {
         res.status(400).json({
