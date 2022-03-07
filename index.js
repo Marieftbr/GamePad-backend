@@ -31,6 +31,33 @@ app.get("/games", async (req, res) => {
   }
 });
 
+app.get("/games/:id/suggested", async (req, res) => {
+  try {
+    // const rawgResponse = await rawgGet(
+    //   `/games/${req.params.id}/suggested`,
+    //   req.query
+    // );
+    const rawgResponseSingle = await rawgGet(
+      `/games/${req.params.id}`,
+      req.query
+    );
+
+    const rawgResponse = await rawgGet("/games", {
+      tags: rawgResponseSingle.data.tags.map((tag) => tag.id).join(","),
+    });
+
+    const response = {
+      games: rawgResponse.data.results.filter(
+        (game) => game.id !== parseInt(req.params.id)
+      ),
+    };
+
+    res.json(response);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+});
+
 app.get("/game/:id", async (req, res) => {
   try {
     const rawgResponse = await rawgGet(`/games/${req.params.id}`, req.query);
