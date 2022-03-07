@@ -13,8 +13,10 @@ app.use(formidable());
 app.use(cors());
 
 const userRoutes = require("./routes/user");
+const reviewRoutes = require("./routes/review");
 const rawgGet = require("./rawg-get");
 app.use(userRoutes);
+app.use(reviewRoutes);
 
 app.get("/games", async (req, res) => {
   try {
