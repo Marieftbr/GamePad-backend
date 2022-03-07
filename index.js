@@ -13,16 +13,12 @@ app.use(formidable());
 app.use(cors());
 
 const userRoutes = require("./routes/user");
+const rawgGet = require("./rawg-get");
 app.use(userRoutes);
 
 app.get("/games", async (req, res) => {
   try {
-    const rawgResponse = await axios.get(`https://api.rawg.io/api/games`, {
-      params: {
-        ...req.query,
-        key: process.env.RAWG_API_KEY,
-      },
-    });
+    const rawgResponse = await rawgGet("/games", req.query);
 
     const response = {
       total: rawgResponse.data.count,
@@ -35,16 +31,23 @@ app.get("/games", async (req, res) => {
   }
 });
 
+app.get("/game/:id", async (req, res) => {
+  try {
+    const rawgResponse = await rawgGet(`/games/${req.params.id}`, req.query);
+
+    const response = {
+      game: rawgResponse.data,
+    };
+
+    res.json(response);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+});
+
 app.get("/platforms", async (req, res) => {
   try {
-    const rawgResponse = await axios.get(`https://api.rawg.io/api/platforms`, {
-      params: {
-        ...req.query,
-        key: process.env.REACT_APP_API_KEY,
-      },
-    });
-
-    console.log(rawgResponse.data);
+    const rawgResponse = await rawgGet("/platforms", req.query);
 
     const response = {
       platforms: rawgResponse.data.results.map((platform) => {
@@ -60,12 +63,7 @@ app.get("/platforms", async (req, res) => {
 
 app.get("/genres", async (req, res) => {
   try {
-    const rawgResponse = await axios.get(`https://api.rawg.io/api/genres`, {
-      params: {
-        ...req.query,
-        key: process.env.REACT_APP_API_KEY,
-      },
-    });
+    const rawgResponse = await rawgGet("/genres", req.query);
 
     console.log(rawgResponse.data);
 

@@ -51,8 +51,13 @@ router.post("/user/create", async (req, res) => {
       });
 
       await newUser.save();
+      res.json({
+        id: newUser._id,
+        token: newUser.token,
+        name: newUser.name,
+        picture: newUser.picture.url,
+      });
     }
-    res.json({ message: "User created" });
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
@@ -73,6 +78,8 @@ router.post("/user/login", async (req, res) => {
         res.json({
           id: userFromBdd._id,
           token: userFromBdd.token,
+          name: userFromBdd.name,
+          picture: userFromBdd.picture.url,
         });
       } else {
         res.status(400).json({
