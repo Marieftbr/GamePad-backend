@@ -4,6 +4,7 @@ const SHA256 = require("crypto-js/sha256");
 const encBase64 = require("crypto-js/enc-base64");
 const uid2 = require("uid2");
 const cloudinary = require("cloudinary").v2;
+const rawgGet = require("../rawg-get");
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -138,6 +139,31 @@ router.post("/delete", async (req, res) => {
     }
   } catch (error) {
     res.status(400).json({ error: message.error });
+  }
+});
+
+router.post("/addToMyCollection", async (req, res) => {
+  try {
+    //je regarde si on me fournis l'id du jeu et le token de l'utilisateur
+    const gameId = req.fields.gameId;
+    const user = await User.findOne({
+      token: req.headers.authorization.replace("Bearer ", ""),
+    });
+    if (gameId && user) {
+      //si l'utilisateur est connecter et qu'on me passe en paramètre une collection
+      const oldCollection = user.myCollection || [];
+      if (!oldCollection.includes(gameId)) {
+        user.myCollection = [...oldCollection, gameId];
+        await user.save();
+        res.json("Game add to your collection");
+      } else {
+        res.status(400).json("Game already in your collection");
+      }
+    } else {
+      res.json({ message: "Give a game Id" });
+    }
+  } catch (error) {
+    res.status(400).json({ error: error.message });
   }
 });
 

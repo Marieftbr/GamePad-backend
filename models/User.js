@@ -8,6 +8,7 @@ const User = mongoose.model("User", {
   token: { type: String },
   hash: { type: String },
   salt: { type: String },
+  myCollection: [Number],
 });
 
 module.exports = User;
