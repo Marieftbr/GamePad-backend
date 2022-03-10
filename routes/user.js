@@ -167,4 +167,23 @@ router.post("/addToMyCollection", async (req, res) => {
   }
 });
 
+router.get("/myCollection", async (req, res) => {
+  try {
+    const user = await User.findOne({
+      token: req.headers.authorization.replace("Bearer ", ""),
+    });
+
+    const collection = user.myCollection;
+    const games = [];
+    for (const gameId of collection) {
+      const response = await rawgGet(`/games/${gameId}`);
+      games.push(response.data);
+    }
+
+    res.json(games);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+});
+
 module.exports = router;
