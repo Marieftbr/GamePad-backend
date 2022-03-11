@@ -186,4 +186,24 @@ router.get("/myCollection", async (req, res) => {
   }
 });
 
+router.post("/deleteToMyCollection", async (req, res) => {
+  try {
+    const user = await User.findOne({
+      token: req.headers.authorization.replace("Bearer ", ""),
+    });
+    if (user) {
+      user.myCollection = user.myCollection.filter(
+        (gameId) => gameId !== req.fields.id
+      );
+      await user.save();
+
+      res.json({ message: "Game removed from your collection" });
+    } else {
+      res.status(401).json();
+    }
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+});
+
 module.exports = router;
